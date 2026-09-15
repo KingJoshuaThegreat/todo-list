@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>My To-Do List</title>
+<style>
+body {
+  background-color: lavender;
+  text-align: center;
+  font-family: Arial;
+}
+h1 {
+  color: purple;
+}
+input {
+  padding: 8px;
+  font-size: 16px;
+}
+button {
+  padding: 8px 12px;
+  font-size: 16px;
+}
+ul {
+  list-style: none;
+  padding: 0;
+  max-width: 300px;
+  margin: 20px auto;
+}
+li {
+  background-color: white;
+  margin: 5px 0;
+  padding: 10px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+li:hover {
+  background-color: #eee;
+}
+</style>
+</head>
+<body>
+<h1>My To-Do List</h1>
+<p style="font-size:14px; color:gray;">Tap a task to remove it</p>
+
+<input type="text" id="taskInput" placeholder="Enter a task">
+<button onclick="addTask()">Add Task</button>
+
+<ul id="taskList"></ul>
+
+<script>
+function addTask() {
+  let taskText = document.getElementById("taskInput").value;
+  let list = document.getElementById("taskList");
+  let newItem = document.createElement("li");
+  newItem.innerHTML = taskText;
+  newItem.onclick = function() {
+    newItem.remove();
+  };
+  list.appendChild(newItem);
+  document.getElementById("taskInput").value = "";
+}
+</script>
+</body>
+  </html>
