@@ -94,18 +94,37 @@ li:hover {
 </div>
 
 <script>
+let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+
+function saveTasks() {
+  localStorage.setItem("tasks", JSON.stringify(tasks));
+}
+
+function renderTasks() {
+  let list = document.getElementById("taskList");
+  list.innerHTML = "";
+  for (let i = 0; i < tasks.length; i++) {
+    let newItem = document.createElement("li");
+    newItem.innerHTML = tasks[i];
+    newItem.onclick = function() {
+      tasks.splice(i, 1);
+      saveTasks();
+      renderTasks();
+    };
+    list.appendChild(newItem);
+  }
+}
+
 function addTask() {
   let taskText = document.getElementById("taskInput").value;
   if (taskText.trim() === "") return;
-  let list = document.getElementById("taskList");
-  let newItem = document.createElement("li");
-  newItem.innerHTML = taskText;
-  newItem.onclick = function() {
-    newItem.remove();
-  };
-  list.appendChild(newItem);
+  tasks.push(taskText);
+  saveTasks();
+  renderTasks();
   document.getElementById("taskInput").value = "";
 }
+
+renderTasks();
 </script>
 </body>
 </html>
