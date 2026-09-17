@@ -77,7 +77,6 @@ h1 {
   color: var(--text-secondary);
   margin-bottom: 20px;
 }
-
 .stats {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -100,20 +99,21 @@ h1 {
   color: var(--text-secondary);
   margin: 4px 0 0;
 }
-
 .input-row {
   display: flex;
   gap: 8px;
-  margin-bottom: 15px;
+  margin-bottom: 10px;
 }
-input {
-  flex: 1;
+input, select {
   padding: 10px;
   font-size: 15px;
   border: 1px solid var(--text-secondary);
   border-radius: 8px;
   background-color: var(--bg-card);
   color: var(--text-primary);
+}
+input {
+  flex: 1;
 }
 button {
   padding: 10px 16px;
@@ -126,6 +126,13 @@ button {
 }
 button:hover {
   background-color: var(--primary-hover);
+}
+.error {
+  color: #DC2626;
+  font-size: 13px;
+  margin: -5px 0 10px;
+  text-align: left;
+  display: none;
 }
 ul {
   list-style: none;
@@ -141,10 +148,22 @@ li {
   text-align: left;
   cursor: pointer;
   transition: background-color 0.2s;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 li:hover {
   background-color: var(--task-hover);
 }
+.priority-tag {
+  font-size: 11px;
+  padding: 3px 8px;
+  border-radius: 6px;
+  font-weight: bold;
+}
+.priority-High { background-color: #FEE2E2; color: #991B1B; }
+.priority-Medium { background-color: #FEF3C7; color: #92400E; }
+.priority-Low { background-color: #D1FAE5; color: #065F46; }
 </style>
 </head>
 <body>
@@ -169,7 +188,15 @@ li:hover {
 
   <div class="input-row">
     <input type="text" id="taskInput" placeholder="Enter a task">
-    <button onclick="addTask()">Add</button>
+    <select id="priorityInput">
+      <option value="Low">Low</option>
+      <option value="Medium" selected>Medium</option>
+      <option value="High">High</option>
+    </select>
+  </div>
+  <p class="error" id="errorMsg">Please enter a task first.</p>
+  <div class="input-row">
+    <button onclick="addTask()" style="width:100%;">Add Task</button>
   </div>
 
   <ul id="taskList"></ul>
@@ -191,8 +218,12 @@ function renderTasks() {
   let list = document.getElementById("taskList");
   list.innerHTML = "";
   for (let i = 0; i < tasks.length; i++) {
+    let task = tasks[i];
     let newItem = document.createElement("li");
-    newItem.innerHTML = tasks[i];
+    newItem.innerHTML = `
+      <span>${task.text}</span>
+      <span class="priority-tag priority-${task.priority}">${task.priority}</span>
+    `;
     newItem.onclick = function() {
       tasks.splice(i, 1);
       saveTasks();
@@ -205,8 +236,16 @@ function renderTasks() {
 
 function addTask() {
   let taskText = document.getElementById("taskInput").value;
-  if (taskText.trim() === "") return;
-  tasks.push(taskText);
+  let priority = document.getElementById("priorityInput").value;
+  let errorMsg = document.getElementById("errorMsg");
+
+  if (taskText.trim() === "") {
+    errorMsg.style.display = "block";
+    return;
+  }
+  errorMsg.style.display = "none";
+
+  tasks.push({ text: taskText, priority: priority });
   saveTasks();
   renderTasks();
   document.getElementById("taskInput").value = "";
@@ -227,4 +266,4 @@ if (localStorage.getItem("darkMode") === "true") {
 renderTasks();
 </script>
 </body>
-  </html>
+</html>
