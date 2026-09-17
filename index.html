@@ -113,6 +113,28 @@ h1 {
 #openModalBtn:hover {
   background-color: var(--primary-hover);
 }
+
+.filter-row {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 15px;
+}
+.filter-btn {
+  flex: 1;
+  padding: 8px 4px;
+  font-size: 12px;
+  border: 1px solid var(--text-secondary);
+  background-color: transparent;
+  color: var(--text-primary);
+  border-radius: 6px;
+  cursor: pointer;
+}
+.filter-btn.active {
+  background-color: var(--primary-color);
+  color: white;
+  border-color: var(--primary-color);
+}
+
 ul {
   list-style: none;
   padding: 0;
@@ -143,6 +165,12 @@ li:hover {
 .priority-High { background-color: #FEE2E2; color: #991B1B; }
 .priority-Medium { background-color: #FEF3C7; color: #92400E; }
 .priority-Low { background-color: #D1FAE5; color: #065F46; }
+
+.empty-msg {
+  color: var(--text-secondary);
+  font-size: 13px;
+  padding: 20px 0;
+}
 
 .modal-overlay {
   display: none;
@@ -236,6 +264,13 @@ li:hover {
 
   <button id="openModalBtn" onclick="openModal()">+ Add Task</button>
 
+  <div class="filter-row">
+    <button class="filter-btn active" onclick="setFilter('All', this)">All</button>
+    <button class="filter-btn" onclick="setFilter('Low', this)">Low</button>
+    <button class="filter-btn" onclick="setFilter('Medium', this)">Medium</button>
+    <button class="filter-btn" onclick="setFilter('High', this)">High</button>
+  </div>
+
   <ul id="taskList"></ul>
 </div>
 
@@ -260,6 +295,7 @@ li:hover {
 
 <script>
 let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+let currentFilter = "All";
 
 function saveTasks() {
   localStorage.setItem("tasks", JSON.stringify(tasks));
@@ -270,18 +306,43 @@ function updateStats() {
   document.getElementById("remainingCount").innerHTML = tasks.length;
 }
 
+function setFilter(filterValue, buttonEl) {
+  currentFilter = filterValue;
+  let allButtons = document.querySelectorAll(".filter-btn");
+  for (let i = 0; i < allButtons.length; i++) {
+    allButtons[i].classList.remove("active");
+  }
+  buttonEl.classList.add("active");
+  renderTasks();
+}
+
 function renderTasks() {
   let list = document.getElementById("taskList");
   list.innerHTML = "";
-  for (let i = 0; i < tasks.length; i++) {
-    let task = tasks[i];
+
+  let visibleTasks = tasks;
+  if (currentFilter !== "All") {
+    visibleTasks = tasks.filter(function(task) {
+      return task.priority === currentFilter;
+    });
+  }
+
+  if (visibleTasks.length === 0) {
+    list.innerHTML = '<p class="empty-msg">No tasks here yet</p>';
+    updateStats();
+    return;
+  }
+
+  for (let i = 0; i < visibleTasks.length; i++) {
+    let task = visibleTasks[i];
     let newItem = document.createElement("li");
     newItem.innerHTML = `
       <span>${task.text}</span>
       <span class="priority-tag priority-${task.priority}">${task.priority}</span>
     `;
     newItem.onclick = function() {
-      tasks.splice(i, 1);
+      let realIndex = tasks.indexOf(task);
+      tasks.splice(realIndex, 1);
       saveTasks();
       renderTasks();
     };
@@ -331,4 +392,4 @@ if (localStorage.getItem("darkMode") === "true") {
 renderTasks();
 </script>
 </body>
-    </html>
+  </html>
