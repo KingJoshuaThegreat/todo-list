@@ -99,40 +99,19 @@ h1 {
   color: var(--text-secondary);
   margin: 4px 0 0;
 }
-.input-row {
-  display: flex;
-  gap: 8px;
-  margin-bottom: 10px;
-}
-input, select {
-  padding: 10px;
-  font-size: 15px;
-  border: 1px solid var(--text-secondary);
-  border-radius: 8px;
-  background-color: var(--bg-card);
-  color: var(--text-primary);
-}
-input {
-  flex: 1;
-}
-button {
-  padding: 10px 16px;
+#openModalBtn {
+  width: 100%;
+  padding: 12px;
   font-size: 15px;
   background-color: var(--primary-color);
   color: white;
   border: none;
   border-radius: 8px;
   cursor: pointer;
+  margin-bottom: 15px;
 }
-button:hover {
+#openModalBtn:hover {
   background-color: var(--primary-hover);
-}
-.error {
-  color: #DC2626;
-  font-size: 13px;
-  margin: -5px 0 10px;
-  text-align: left;
-  display: none;
 }
 ul {
   list-style: none;
@@ -164,6 +143,75 @@ li:hover {
 .priority-High { background-color: #FEE2E2; color: #991B1B; }
 .priority-Medium { background-color: #FEF3C7; color: #92400E; }
 .priority-Low { background-color: #D1FAE5; color: #065F46; }
+
+.modal-overlay {
+  display: none;
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.5);
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+  z-index: 10;
+}
+.modal-overlay.active {
+  display: flex;
+}
+.modal-box {
+  background-color: var(--bg-card);
+  border-radius: 12px;
+  padding: 20px;
+  width: 100%;
+  max-width: 340px;
+  text-align: left;
+}
+.modal-box h2 {
+  color: var(--text-primary);
+  font-size: 18px;
+  margin: 0 0 15px;
+}
+.modal-box label {
+  font-size: 13px;
+  color: var(--text-secondary);
+  display: block;
+  margin-bottom: 4px;
+}
+.modal-box input, .modal-box select {
+  width: 100%;
+  padding: 10px;
+  font-size: 15px;
+  border: 1px solid var(--text-secondary);
+  border-radius: 8px;
+  background-color: var(--bg-page);
+  color: var(--text-primary);
+  margin-bottom: 12px;
+}
+.modal-error {
+  color: #DC2626;
+  font-size: 13px;
+  margin: -8px 0 12px;
+  display: none;
+}
+.modal-buttons {
+  display: flex;
+  gap: 10px;
+}
+.modal-buttons button {
+  flex: 1;
+  padding: 10px;
+  font-size: 15px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+#cancelBtn {
+  background-color: var(--stat-bg);
+  color: var(--text-primary);
+}
+#confirmAddBtn {
+  background-color: var(--primary-color);
+  color: white;
+}
 </style>
 </head>
 <body>
@@ -186,20 +234,28 @@ li:hover {
     </div>
   </div>
 
-  <div class="input-row">
+  <button id="openModalBtn" onclick="openModal()">+ Add Task</button>
+
+  <ul id="taskList"></ul>
+</div>
+
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal-box">
+    <h2>Add new task</h2>
+    <label>Task title</label>
     <input type="text" id="taskInput" placeholder="Enter a task">
+    <label>Priority</label>
     <select id="priorityInput">
       <option value="Low">Low</option>
       <option value="Medium" selected>Medium</option>
       <option value="High">High</option>
     </select>
+    <p class="modal-error" id="errorMsg">Please enter a task first.</p>
+    <div class="modal-buttons">
+      <button id="cancelBtn" onclick="closeModal()">Cancel</button>
+      <button id="confirmAddBtn" onclick="addTask()">Add Task</button>
+    </div>
   </div>
-  <p class="error" id="errorMsg">Please enter a task first.</p>
-  <div class="input-row">
-    <button onclick="addTask()" style="width:100%;">Add Task</button>
-  </div>
-
-  <ul id="taskList"></ul>
 </div>
 
 <script>
@@ -234,6 +290,16 @@ function renderTasks() {
   updateStats();
 }
 
+function openModal() {
+  document.getElementById("modalOverlay").classList.add("active");
+}
+
+function closeModal() {
+  document.getElementById("modalOverlay").classList.remove("active");
+  document.getElementById("errorMsg").style.display = "none";
+  document.getElementById("taskInput").value = "";
+}
+
 function addTask() {
   let taskText = document.getElementById("taskInput").value;
   let priority = document.getElementById("priorityInput").value;
@@ -243,12 +309,11 @@ function addTask() {
     errorMsg.style.display = "block";
     return;
   }
-  errorMsg.style.display = "none";
 
   tasks.push({ text: taskText, priority: priority });
   saveTasks();
   renderTasks();
-  document.getElementById("taskInput").value = "";
+  closeModal();
 }
 
 function toggleTheme() {
@@ -266,4 +331,4 @@ if (localStorage.getItem("darkMode") === "true") {
 renderTasks();
 </script>
 </body>
-</html>
+    </html>
